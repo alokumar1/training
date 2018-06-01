@@ -116,9 +116,10 @@ plt.show()
 #test = preprocess(test)
 #test = test.fillna(test.mean())
 #test = test.values
+#scaler = StandardScaler()
 #test = scaler.fit_transform(test)
 #z_pred = test.dot(w)+b
-#y_pred  = 1/(1+math.e**(-z_pred))
+#y_pred  = 1/(1+np.exp(-z_pred))
 #y_pred[y_pred>0.5] = 1
 #y_pred[y_pred<0.5] = 0
 
