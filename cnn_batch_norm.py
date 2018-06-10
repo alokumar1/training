@@ -266,9 +266,15 @@ for x in range(10):
     
     #fully connected layer
     FC = A_pool.reshape((1000,A_pool[0].size))
+    
+    #applying batch norm
     mean =  np.sum(FC,axis = 0)/len(FC)
     dev = np.std(FC,axis = 0)    
     FC = (FC-mean)/dev
+    for i in range(1000):
+        for j in range(507):
+            if(np.isnan(FC[i,j])):
+                FC[i,j] = 0
     
     
     Z1 = np.dot(FC,W1.T) + b1.T
@@ -333,5 +339,5 @@ for i in range(1000):
     if((y[i]-p[i]) == 0):
         cnt = cnt +1
 acc = cnt/1000.0
-
+print(acc)
 

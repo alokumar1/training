@@ -311,5 +311,6 @@ for i in range(1000):
     if((y[i]-p[i]) == 0):
         cnt = cnt +1
 acc = cnt/1000.0
+print(acc)
 
 
