@@ -120,84 +120,59 @@ def pool_forward(A_prev, hparameters, mode = "max"):
     
     return A, cache
 def batchnorm_forward(x, gamma, beta, eps):
-
   N, D = x.shape
-
   #step1: calculate mean
   mu = 1./N * np.sum(x, axis = 0)
-
   #step2: subtract mean vector of every trainings example
   xmu = x - mu
-
   #step3: following the lower branch - calculation denominator
   sq = xmu ** 2
-
   #step4: calculate variance
   var = 1./N * np.sum(sq, axis = 0)
-
   #step5: add eps for numerical stability, then sqrt
   sqrtvar = np.sqrt(var + eps)
-
   #step6: invert sqrtwar
   ivar = 1./sqrtvar
-
   #step7: execute normalization
   xhat = xmu * ivar
-
   #step8: Nor the two transformation steps
   gammax = gamma * xhat
-
   #step9
   out = gammax + beta
-
   #store intermediate
   cache = (xhat,gamma,xmu,ivar,sqrtvar,var,eps)
-
   return out, cache
 
 
 def batchnorm_backward(dout, cache):
-
   #unfold the variables stored in cache
   xhat,gamma,xmu,ivar,sqrtvar,var,eps = cache
-
   #get the dimensions of the input/output
   N,D = dout.shape
-
   #step9
   dbeta = np.sum(dout, axis=0)
-  dgammax = dout #not necessary, but more understandable
-
+  dgammax = dout 
   #step8
   dgamma = np.sum(dgammax*xhat, axis=0)
   dxhat = dgammax * gamma
-
   #step7
   divar = np.sum(dxhat*xmu, axis=0)
   dxmu1 = dxhat * ivar
-
   #step6
   dsqrtvar = -1. /(sqrtvar**2) * divar
-
   #step5
   dvar = 0.5 * 1. /np.sqrt(var+eps) * dsqrtvar
-
   #step4
   dsq = 1. /N * np.ones((N,D)) * dvar
-
   #step3
   dxmu2 = 2 * xmu * dsq
-
   #step2
   dx1 = (dxmu1 + dxmu2)
   dmu = -1 * np.sum(dxmu1+dxmu2, axis=0)
-
   #step1
   dx2 = 1. /N * np.ones((N,D)) * dmu
-
   #step0
   dx = dx1 + dx2
-
   return dx, dgamma, dbeta
 
 def conv_backward(dZ, cache):
@@ -246,18 +221,12 @@ def conv_backward(dZ, cache):
     return dA_prev, dW, db
 
 def create_mask_from_window(x):
-
-    mask = (x == np.max(x))
-    
-    
+    mask = (x == np.max(x))   
     return mask
 
-def distribute_value(dz, shape):
-   
-    (n_H, n_W) = shape
-    
-    average = dz
-    
+def distribute_value(dz, shape):   
+    (n_H, n_W) = shape    
+    average = dz    
     a = average*np.ones((n_H,n_W))/(n_H*n_W)
     
     return a
@@ -307,19 +276,6 @@ def pool_backward(dA, cache, mode = "max"):
     return dA_prev
 
 A_prev = train_x[0:1000]
-
-#batchnorm
-#mean = np.sum(A_prev,axis = 0)/len(A_prev)
-#deviation = np.std(A_prev,axis = 0)
-#scaled = (A_prev-mean)/deviation
-#for i in range(1000):
-#    for j in range(28):
-#        for k in range(28):
-#            if(np.isnan(scaled[i,j,k])):                
-#                scaled[i,j,k] = 0
-
-#A_prev = scaled
-
 y = train_y[0:1000]
 W = np.random.randn(3,3,1,3)/10
 b = np.zeros((1,1,1,3))
@@ -327,105 +283,70 @@ W1 = np.random.randn(15,507)/10
 b1 = np.zeros((15,1))
 W2 = np.random.randn(10,15)/10
 b2 = np.zeros((10,1))
-l1,l2,l3,l4 = 0.001,0.001,0.001,0.0001
-
+l1,l2,l3,l4 = 0.001,0.001,0.001,0.001
 loss= []
-
-
-hparameters = {"pad" : 0,
-               "stride": 1}
+hparameters = {"pad" : 0,"stride": 1}
 hparameters_pool = {"stride" : 2, "f": 2}
 gamma = 1
 beta = 0
 eps = 0.0000001
-
-iters = 50
+iters = 10
 for x in range(iters):
     #first convoluted layer
-    Z, cache_conv = conv_forward(A_prev, W, b, hparameters)
-    
-    
-    zero_matrix = np.zeros_like(Z)
-    
+    Z, cache_conv = conv_forward(A_prev, W, b, hparameters)    
+    zero_matrix = np.zeros_like(Z)    
     #apply relu activation
     for i in range(len(Z)):
         for j in range(len(Z[0])):
             for k in range(len(Z[0][0])):
                 for c in range(len(Z[0][0][0])):
-                    Z[i,j,k,c] = max(zero_matrix[i,j,k,c],Z[i,j,k,c])
-                    
+                    Z[i,j,k,c] = max(zero_matrix[i,j,k,c],Z[i,j,k,c])                    
     #Z is activated matrix after 1st convolution                
     A = Z                    
     #A_prev = A           
-    A_pool, cache_pool = pool_forward(A, hparameters_pool,mode = 'max')    
-    
+    A_pool, cache_pool = pool_forward(A, hparameters_pool,mode = 'max')      
     #fully connected layer
-    FC = A_pool.reshape((1000,A_pool[0].size))
-    
-    #applying batch norm
-    #    mean =  np.sum(FC,axis = 0)/len(FC)
-    #    dev = np.std(FC,axis = 0)    
-    #    FC = (FC-mean)/dev
-    #    for i in range(1000):
-    #        for j in range(507):
-    #            if(np.isnan(FC[i,j])):
-    #                FC[i,j] = 0
-    
-    batch_out, cache_batch = batchnorm_forward(FC,gamma,beta,eps)
-    
-    
-    
-    
-    
+    FC = A_pool.reshape((1000,A_pool[0].size))       
+    batch_out, cache_batch = batchnorm_forward(FC,gamma,beta,eps)       
     Z1 = np.dot(batch_out,W1.T) + b1.T
-    A1 = 1/(1+np.exp(-Z1))  
-    
+    A1 = 1/(1+np.exp(-Z1))      
     Z2 = np.dot(A1,W2.T) + b2.T
-    #A2 = 1/(1+np.exp(-Z2))
+    #A2 = 1/(1+np.exp(-Z2))    
     
     #softmax 
     Z2 = np.exp(Z2)
     sums =  np.sum(Z2,axis = 1)
     sums = sums.reshape((1000,1))
-    A2 = Z2/sums
+    A2 = Z2/sums    
     
     #one hot encoder
     Y = np.eye(1000,10)[y.reshape(-1)]
     loss.append(-sum(np.sum(Y*np.log(A2),axis = 1))/len(Y))
     print(datetime.now().minute)
     print(loss[x])
-#    print(loss)
     
     dZ2 = A2 - Y
     dW2 = np.dot(dZ2.T , A1)
-    db2 = np.sum(dZ2,axis= 0,keepdims = True)
-    
+    db2 = np.sum(dZ2,axis= 0,keepdims = True)    
     W2 = W2 - l3 * dW2
     b2 = b2 - l3 * db2.T
     
     dZ1 = np.dot(dZ2,W2) * ((1-A1)*A1)
     dW1 = np.dot(dZ1.T , FC)
-    db1 = np.sum(dZ1,axis= 0,keepdims = True)
-    
+    db1 = np.sum(dZ1,axis= 0,keepdims = True)    
     W1 = W1 - l2 * dW1
-    b1 = b1 - l2 * db1.T
-    
+    b1 = b1 - l2 * db1.T    
     dA0 = np.dot(dZ1,W1)
-    #dA0 = dA0.reshape((1000,13,13,3))
     
     dA_batch, dgamma, dbeta = batchnorm_backward(dA0,cache_batch)
     gamma = gamma - l4 * dgamma
     beta = beta - l4 * dbeta
     
     dA_batch = dA_batch.reshape((1000,13,13,3))
-    dA_conv = pool_backward(dA_batch ,cache_pool,mode = 'max')
-    
-    dA_prev, dW, db = conv_backward(dA_conv,cache_conv)
-    
+    dA_conv = pool_backward(dA_batch ,cache_pool,mode = 'max')    
+    dA_prev, dW, db = conv_backward(dA_conv,cache_conv)    
     W = W - l1 * dW
     b = b - l1 * db
-
-
 
 #calculation of accuracy
 maxx = np.max(A2 ,axis=1).reshape(1000,1)
@@ -435,7 +356,7 @@ for i in range(1000):
         if(A2[i][j] == 0):
             A2[i][j] = 1
         else:
-            A2[i][j] = 0
+            A2[i][j] = 0 
             
             
 mat = np.arange(10).reshape(10,1)

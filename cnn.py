@@ -222,12 +222,10 @@ W2 = np.random.randn(10,15)/10
 b2 = np.zeros((10,1))
 l1,l2,l3 = 0.001,0.001,0.001
 loss = []
-
-hparameters = {"pad" : 0,
-               "stride": 1}
+hparameters = {"pad" : 0,"stride": 1}
 hparameters_pool = {"stride" : 2, "f": 2}
-
-for x in range(40):
+iters = 10
+for x in range(iters):
     #first convoluted layer
     Z, cache_conv = conv_forward(A_prev, W, b, hparameters)
     
@@ -294,8 +292,8 @@ for x in range(40):
 
 
 #calculation of accuracy
-ma = np.max(A2 ,axis=1).reshape(1000,1)
-A2 = A2 - ma
+maxx = np.max(A2 ,axis=1).reshape(1000,1)
+A2 = A2 - maxx
 for i in range(1000):
     for j in range(10):
         if(A2[i][j] == 0):
@@ -313,5 +311,5 @@ for i in range(1000):
         cnt = cnt +1
 acc = cnt/1000.0
 print(acc)
-plt.plot(np.arange(40),loss)
+plt.plot(np.arange(iters),loss)
 
