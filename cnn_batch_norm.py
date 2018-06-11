@@ -1,6 +1,14 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
+Created on Sun Jun 10 21:37:02 2018
+
+@author: alok
+"""
+
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
 Created on Sun Jun 10 18:42:01 2018
 
 @author: alok
@@ -210,9 +218,20 @@ def pool_backward(dA, cache, mode = "max"):
     
     return dA_prev
 
-
-
 A_prev = train_x[0:1000]
+
+#batchnorm
+mean = np.sum(A_prev,axis = 0)/len(A_prev)
+deviation = np.std(A_prev,axis = 0)
+scaled = (A_prev-mean)/deviation
+for i in range(1000):
+    for j in range(28):
+        for k in range(28):
+            if(np.isnan(scaled[i,j,k])):                
+                scaled[i,j,k] = 0
+
+A_prev = scaled
+
 y = train_y[0:1000]
 W = np.random.randn(3,3,1,3)/10
 b = np.zeros((1,1,1,3))
@@ -221,13 +240,15 @@ b1 = np.zeros((15,1))
 W2 = np.random.randn(10,15)/10
 b2 = np.zeros((10,1))
 l1,l2,l3 = 0.001,0.001,0.001
-loss = []
+
+loss= []
+
 
 hparameters = {"pad" : 0,
                "stride": 1}
 hparameters_pool = {"stride" : 2, "f": 2}
 
-for x in range(40):
+for x in range(100):
     #first convoluted layer
     Z, cache_conv = conv_forward(A_prev, W, b, hparameters)
     
@@ -249,6 +270,16 @@ for x in range(40):
     #fully connected layer
     FC = A_pool.reshape((1000,A_pool[0].size))
     
+    #applying batch norm
+    mean =  np.sum(FC,axis = 0)/len(FC)
+    dev = np.std(FC,axis = 0)    
+    FC = (FC-mean)/dev
+    for i in range(1000):
+        for j in range(507):
+            if(np.isnan(FC[i,j])):
+                FC[i,j] = 0
+    
+    
     Z1 = np.dot(FC,W1.T) + b1.T
     A1 = 1/(1+np.exp(-Z1))  
     
@@ -265,7 +296,6 @@ for x in range(40):
     Y = np.eye(1000,10)[y.reshape(-1)]
     loss.append(-sum(np.sum(Y*np.log(A2),axis = 1))/len(Y))
     print(datetime.now().minute)
-    
     print(loss[x])
     dZ2 = A2 - Y
     dW2 = np.dot(dZ2.T , A1)
@@ -313,5 +343,5 @@ for i in range(1000):
         cnt = cnt +1
 acc = cnt/1000.0
 print(acc)
-plt.plot(np.arange(40),loss)
+plt.plot(np.arange(100),loss)
 
