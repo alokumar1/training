@@ -136,7 +136,7 @@ def main_func():
     learning_rate = 0.005
     num_epochs = 50
     minibatch_size = 1000
-    
+    acc = []
     #    num_input = 10000#784 
     num_classes = 120 
     #dropout = 0.75 
@@ -187,7 +187,8 @@ def main_func():
         
         for epoch in range(num_epochs):
             start_time = time.time()
-            epoch_cost = 0.  
+            epoch_cost = 0.
+            epoch_accuracy = 0.
             num_minibatches = int(10222 / minibatch_size)
             minibatches = random_mini_batches(dogs, breed, minibatch_size)
     #            i = 0
@@ -200,26 +201,32 @@ def main_func():
     #                _, minibatch_cost,summ = sess.run([optimizer,loss_op,merged],feed_dict={X:batch_x, Y:batch_y, keep_prob:0.8})
     
                 epoch_cost += 0.001*minibatch_cost / num_minibatches
-    #                i = i+1
+      
+    #            writer.add_summary(summ,epoch)                
+                _,minibatch_acc = sess.run([accuracy], feed_dict={X: batch_x,Y:batch_y,keep_prob: 1.0})
+                epoch_accuracy += minibatch_acc / num_minibatches
                 
-    #            writer.add_summary(summ,epoch)
-                 
+                
+            print(str(epoch)+' epoch' ,' epoch_cost : ',epoch_cost,' epoch_accuracy : ',epoch_accuracy)  
             
-            print('epoch_cost ',epoch_cost)   
-            print ("Train Accuracy batch:", sess.run([accuracy], feed_dict={X: batch_x,Y:batch_y,keep_prob: 1.0}))
+#            print ("Train Accuracy batch:", sess.run([accuracy], feed_dict={X: batch_x,Y:batch_y,keep_prob: 1.0}))
     #            print ("Train Accuracy:", sess.run([accuracy], feed_dict={X: dogs[:5000],Y:breed[0:5000],keep_prob: 1.0}))
     #            print ("Test Accuracy:", sess.run([accuracy], feed_dict={X: mnist.test.images,Y:mnist.test.labels,keep_prob: 1.0}))
+            
+            
             end_time = time.time()
             time_dif = end_time - start_time
             print("Time usage: " + str(timedelta(seconds=int(round(time_dif)))))
                 
             costs.append(epoch_cost)
+            acc.append(epoch_accuracy)
     #        save after every 5th iteration
     #            if(epoch %5 == 0):
     #                saver.save(sess,save_path='/home/alok/spyder/checkpoints/breed/1/',global_step=epoch)
-                
+        
+   
     #    writer.close()
-    return costs
+    return costs,acc
 
-costs = main_func()
+costs,acc = main_func()
      
