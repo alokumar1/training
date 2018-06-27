@@ -58,6 +58,13 @@ def using_random_forest(X_train, X_test, y_train, y_test):
     return train_acc,test_acc
 #99,77.1 with tuning
 
+def using_XGBoost(X_train, X_test, y_train, y_test):    
+    model = XGBClassifier()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    test_acc=accuracy_score(y_test, y_pred)
+    return test_acc
+#99.9,77.0
 
 def using_svm(X_train, X_test, y_train, y_test):
     clf = svm.SVC(C=10.0, cache_size=200, class_weight=None, coef0=0.0,
@@ -73,17 +80,6 @@ def using_svm(X_train, X_test, y_train, y_test):
 #82.6,77.9  tuning 'ovo','rbf'
 #98.14, 80.34   tuning c=10,gamma = 0.001,rbf
 # 95.5,80.6    gamma = 0.0005
-
-
-
-def using_XGBoost(X_train, X_test, y_train, y_test):    
-    model = XGBClassifier()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    test_acc=accuracy_score(y_test, y_pred)
-    return test_acc
-#99.9,77.0
-
 
 
 x = pickle.load(open('Inception_logits.p', 'rb'))       

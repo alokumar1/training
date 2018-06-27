@@ -45,6 +45,8 @@ import math
 import time
 from datetime import timedelta
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder,OneHotEncoder
+
 
 def conv2d(x, W, b, strides=1,padding='VALID'):
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='VALID')
@@ -244,7 +246,6 @@ def main_func(x,y,learning_rate = 0.005,num_epochs = 30,minibatch_size = 300):
     return costs,trainacc,testsacc
 
     
-from sklearn.preprocessing import LabelEncoder,OneHotEncoder
 data = pd.read_csv('all_data_labels_without_directory.csv')
 names = data.id.values
 breed = data.breed.values
