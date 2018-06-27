@@ -19,44 +19,6 @@ from datetime import timedelta
 module = hub.Module("https://tfhub.dev/google/imagenet/inception_v3/feature_vector/1")
 height, width = hub.get_expected_image_size(module)
 
-#data = pd.read_csv('labels.csv')
-#names = data.id.values
-#feature_vector = []
-#dogs = []
-#cnt = 0
-#init = tf.global_variables_initializer()
-#with tf.Session() as sess:   
-#    sess.run(init)
-#    for i in range(len(names)):    
-#            
-#        img = cv2.imread(names[i]+'.jpg')    
-#        img = cv2.resize(img,(299,299), interpolation = cv2.INTER_CUBIC)
-#        dogs.append(img/255.0)        
-#        cnt = cnt+1
-#        
-#        if(cnt == 38):
-#            start_time = time.time()
-#            dogs = np.array(dogs)
-#            features = module(dogs)
-#            feature_vector.append(sess.run(features)) 
-#            
-#            cnt = 0
-#            dogs =[] 
-#            
-#            end_time = time.time()
-#            time_dif = end_time - start_time
-#            print(str(i)+' '+str(cnt)+" Time usage: " + str(timedelta(seconds=int(round(time_dif)))))
-#import csv
-#myFile = open('final_features_3.csv', 'w')  
-#with myFile:  
-#   writer = csv.writer(myFile)
-#   writer.writerows(feature_vector)    
-#import pickle
-#pickle.dump(feature_vector, open('Inception_v3.p', 'w'))
-
-
-
-
 data = pd.read_csv('labels.csv')
 names = data.id.values
 start = time.time()
@@ -87,20 +49,8 @@ for i in range(269):
 stop = time.time()
 print(stop - start)
 
-#import csv
-#myFile = open('final_features.csv', 'w')  
-#with myFile:  
-#   writer = csv.writer(myFile)
-#   writer.writerows(X)
-
 #import pickle
 #pickle.dump(X, open('Inception_v3.p', 'w'))
-
-
-
-
-   
-
 
 import pickle              # import module first
 trained = pickle.load(open('Inception_logits.p', 'rb'))    
@@ -150,8 +100,6 @@ time_dif = end_time - start_time
 print(" Time usage: " + str(timedelta(seconds=int(round(time_dif)))))
 clf.score(X_train,y_train)
 clf.score(X_test,y_test )
-#y_pred = clf.predict(X_test)
-#accuracy_score(y_test, y_pred)
 #82,77.9 without tuning
 #76.6,74.7   with tuning and sigmoid kernel
 #82.6,77.9  tuning 'ovo','rbf'
